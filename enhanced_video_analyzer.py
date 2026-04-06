@@ -1,14 +1,3 @@
-"""
-MelodyWings Enhanced Video Analyzer
-------------------------------------
-Advanced video analysis with:
-- Facial sentiment detection (person's mood/emotion)
-- NSFW/inappropriate visual content detection
-- Audio transcription and toxicity analysis
-- Frame-by-frame safety assessment
-
-Uses pretrained models from TensorFlow/PyTorch Hub for improved accuracy.
-"""
 
 import cv2
 import os

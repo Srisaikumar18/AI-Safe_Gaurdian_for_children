@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MelodyWings • AI Safety Guardian</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0B1120 0%, #111827 100%);
+      min-height: 100vh;
+      color: #E5E7EB;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1F2937;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4B5563;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6B7280;
+    }
+
+    /* Main Layout */
+    .dashboard {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 20px;
+      gap: 32px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .logo-text h2 {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #93C5FD);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+
+    /* Status Card */
+    .status-card {
+      background: rgba(31, 41, 55, 0.6);
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #10B981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #3B82F6;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #9CA3AF;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .main-header {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 16px 32px;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .session-info h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .session-info span {
+      font-size: 13px;
+      color: #9CA3AF;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: rgba(31, 41, 55, 0.8);
+      border: none;
+      padding: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #9CA3AF;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #374151;
+      color: #3B82F6;
+    }
+
+    /* Two Column Layout */
+    .two-columns {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      gap: 1px;
+      background: rgba(31, 41, 55, 0.3);
+    }
+
+    /* Chat Panel */
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0F172A;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 20px 24px;
+      background: rgba(31, 41, 55, 0.5);
+      border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+    }
+
+    .chat-header h4 {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Message Bubbles */
+    .message {
+      display: flex;
+      gap: 12px;
+      animation: fadeInUp 0.3s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .message.bot .message-avatar {
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+    }
+
+    .message.user .message-avatar {
+      background: #374151;
+    }
+
+    .message-content {
+      max-width: 70%;
+    }
+
+    .message-bubble {
+      background: #1E293B;
+      padding: 12px 18px;
+      border-radius: 20px;
+      border-bottom-left-radius: 4px;
+      color: #F3F4F6;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.user .message-bubble {
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Emotion Tag */
+    .emotion-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(59, 130, 246, 0.15);
+      border-radius: 20px;
+      font-size: 11px;
+      margin-top: 6px;
+      color: #93C5FD;
+    }
+
+    /* Alert Badge in Message */
+    .alert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-top: 8px;
+      color: #FCA5A5;
+    }
+
+    /* Input Area */
+    .chat-input-area {
+      padding: 20px 24px;
+      background: rgba(31, 41, 55, 0.5);
+      border-top: 1px solid rgba(75, 85, 99, 0.3);
+      display: flex;
+      gap: 12px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: #1E293B;
+      border: 1px solid #374151;
+      border-radius: 16px;
+      padding: 12px 18px;
+      color: #F3F4F6;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .chat-input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      border: none;
+      padding: 0 24px;
+      border-radius: 16px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Video Panel */
+    .video-panel {
+      width: 420px;
+      background: #0F172A;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .video-header {
+      padding: 20px 24px;
+      background: rgba(31, 41, 55, 0.5);
+      border-bottom: 1px solid rgba(75, 85, 99, 0.3);
+    }
+
+    .video-container {
+      padding: 20px;
+    }
+
+    .video-wrapper {
+      background: #0B1120;
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      position: relative;
+      border: 1px solid #374151;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      flex-direction: column;
+      gap: 12px;
+      color: #6B7280;
+    }
+
+    .analysis-badge {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Alert Log Panel (Slide-out) */
+    .alert-log {
+      position: fixed;
+      right: -400px;
+      top: 0;
+      width: 400px;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(239, 68, 68, 0.3);
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .alert-log.open {
+      right: 0;
+    }
+
+    .alert-log-header {
+      padding: 24px;
+      background: rgba(239, 68, 68, 0.1);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .alert-log-header h3 {
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .close-log {
+      background: none;
+      border: none;
+      color: #9CA3AF;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .alert-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alert-card {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid #EF4444;
+      padding: 12px;
+      border-radius: 12px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .alert-message {
+      font-size: 13px;
+      color: #FCA5A5;
+      margin-bottom: 8px;
+    }
+
+    .alert-reason {
+      font-size: 11px;
+      color: #9CA3AF;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .reason-badge {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .alert-time {
+      font-size: 10px;
+      color: #6B7280;
+      margin-top: 8px;
+    }
+
+    /* FAB Button */
+    .safety-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+      transition: all 0.2s;
+      z-index: 99;
+      border: none;
+      color: white;
+      font-size: 20px;
+    }
+
+    .safety-fab:hover {
+      transform: scale(1.05);
+    }
+
+    .alert-counter {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: white;
+      color: #EF4444;
+      border-radius: 12px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px 18px;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: #6B7280;
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-10px); opacity: 1; }
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      background: #EF4444;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1001;
+      animation: slideInRight 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-area">
+        <div class="logo-icon">🪽</div>
+        <div class="logo-text">
+          <h2>MelodyWings</h2>
+          <p>AI Safety Guardian</p>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-header">
+          <div class="pulse-dot"></div>
+          <span style="font-size: 13px;">System Active</span>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="statAlerts">0</div>
+            <div class="stat-label">Alerts</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="statMessages">0</div>
+            <div class="stat-label">Messages</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="statSafe">100</div>
+            <div class="stat-label">Safety %</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-card">
+        <div style="font-size: 13px; margin-bottom: 12px;">🎯 Monitoring</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+            <span>🔍</span> Profanity Detection
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+            <span>📱</span> PII Detection
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+            <span>🎥</span> Visual Analysis
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+            <span>❤️</span> Emotion Detection
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="main-header">
+        <div class="session-info">
+          <h3>Live Safety Session</h3>
+          <span>Protected by MelodyWings AI</span>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" onclick="clearChat()" title="Clear Chat">🗑️</button>
+          <button class="icon-btn" onclick="simulateTestAlert()" title="Test Alert">⚠️</button>
+        </div>
+      </div>
+
+      <div class="two-columns">
+        <!-- Chat Panel -->
+        <div class="chat-panel">
+          <div class="chat-header">
+            <h4>💬 Safe Chat | <span style="color: #10B981;">End-to-end monitored</span></h4>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+              <div class="message-avatar">🤖</div>
+              <div class="message-content">
+                <div class="message-bubble">Hi! I'm MelodyWings 🎵 How are you feeling today?</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type your message here... (safe space 💙)" autocomplete="off">
+            <button class="send-btn" onclick="sendMessage()">Send ➤</button>
+          </div>
+        </div>
+
+        <!-- Video Panel -->
+        <!-- Video Analysis Panel -->
+        <div class="video-panel">
+          <div class="video-header">
+            <h4>🎥 Video Analyzer | <span style="color: #EF4444;">Lightweight Content Detection</span></h4>
+          </div>
+          <div class="video-container">
+            <div class="video-wrapper" id="videoWrapper">
+              <div class="video-placeholder">
+                <span style="font-size: 48px;">🎬</span>
+                <span>Upload video for analysis</span>
+                <span style="font-size: 11px; color: #4B5563;">Fast keyword-based detection</span>
+              </div>
+              <div class="analysis-badge">
+                <span>🎯</span>
+                <span id="videoStatus">Waiting for upload</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 0 20px 20px 20px;">
+            <input type="file" id="videoUpload" accept="video/*" style="display: none;" onchange="handleVideoUpload(this)">
+            <button class="icon-btn" style="width: 100%; background: #1E293B; padding: 12px;" onclick="document.getElementById('videoUpload').click()">
+              📤 Upload Video for Analysis
+            </button>
+          </div>
+          <div id="videoResult" style="padding: 0 20px 20px 20px; display: none;">
+            <div style="background: rgba(31, 41, 55, 0.6); border-radius: 12px; padding: 12px;">
+              <div id="videoRiskLevel" style="font-size: 14px; font-weight: 600; margin-bottom: 6px;"></div>
+              <div id="videoMessage" style="font-size: 13px; color: #F3F4F6; margin-bottom: 8px;"></div>
+              <div id="videoDetails" style="font-size: 12px; color: #9CA3AF;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Analysis Panel -->
+        <div class="video-panel" style="margin-top: 20px;">
+          <div class="video-header">
+            <h4>🎤 Audio Analyzer | <span style="color: #10B981;">Speech to Text + Safety</span></h4>
+          </div>
+          <div class="video-container">
+            <div class="video-wrapper" id="audioWrapper">
+              <div class="video-placeholder">
+                <span style="font-size: 48px;">🎙️</span>
+                <span>Upload .wav audio file</span>
+                <span style="font-size: 11px; color: #4B5563;">Speech will be transcribed and analyzed</span>
+              </div>
+              <div class="analysis-badge">
+                <span>🎯</span>
+                <span id="audioStatus">Waiting for audio</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 0 20px 20px 20px;">
+            <input type="file" id="audioUpload" accept=".wav,audio/wav" style="display: none;" onchange="handleAudioUpload(this)">
+            <button class="icon-btn" style="width: 100%; background: #1E293B; padding: 12px;" onclick="document.getElementById('audioUpload').click()">
+              📤 Upload Audio (.wav)
+            </button>
+          </div>
+          <div id="audioResult" style="padding: 0 20px 20px 20px; display: none;">
+            <div style="background: rgba(31, 41, 55, 0.6); border-radius: 12px; padding: 12px;">
+              <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 6px;">Transcription:</div>
+              <div id="audioTranscription" style="font-size: 13px; color: #F3F4F6; margin-bottom: 8px;"></div>
+              <div id="audioSafetyResult" style="font-size: 12px; font-weight: 600;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Log Panel -->
+  <div class="alert-log" id="alertLog">
+    <div class="alert-log-header">
+      <h3>🛡️ Safety Alerts Log</h3>
+      <button class="close-log" onclick="closeAlertLog()">✕</button>
+    </div>
+    <div class="alert-list" id="alertList">
+      <div style="text-align: center; color: #6B7280; padding: 40px;">No alerts yet</div>
+    </div>
+  </div>
+
+  <!-- FAB Button -->
+  <button class="safety-fab" onclick="openAlertLog()">
+    🛡️
+    <span class="alert-counter" id="fabAlertCount">0</span>
+  </button>
+
+  <script>
+    // State
+    let alerts = [];
+    let messageCount = 0;
+    let currentTypingTimeout = null;
+
+    // DOM Elements
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const alertLogPanel = document.getElementById('alertLog');
+    const alertList = document.getElementById('alertList');
+    const fabAlertCount = document.getElementById('fabAlertCount');
+    const statAlerts = document.getElementById('statAlerts');
+    const statMessages = document.getElementById('statMessages');
+    const statSafe = document.getElementById('statSafe');
+
+    // Emotion detection mapping (simulated)
+    const detectEmotion = (text) => {
+      const lower = text.toLowerCase();
+      if (lower.includes('sad') || lower.includes('cry') || lower.includes('hurt')) return { emotion: 'sad', icon: '😢', color: '#7EC8F7' };
+      if (lower.includes('happy') || lower.includes('great') || lower.includes('good') || lower.includes('love')) return { emotion: 'happy', icon: '😊', color: '#FFE066' };
+      if (lower.includes('confus') || lower.includes('dont understand') || lower.includes('what')) return { emotion: 'confused', icon: '🤔', color: '#FFB347' };
+      return { emotion: 'calm', icon: '😌', color: '#93C5FD' };
+    };
+
+    // Safety analysis
+    const analyzeSafety = (text) => {
+      const lower = text.toLowerCase();
+      const alerts = [];
+      let safetyScore = 100;
+
+      // Profanity detection (basic - would use better model in production)
+      const profanityList = ['shit', 'damn', 'stupid', 'idiot', 'hate you', 'kill', 'die', 'fuck', 'hell'];
+      for (let word of profanityList) {
+        if (lower.includes(word)) {
+          alerts.push({ type: 'profanity', reason: `Profanity detected: "${word}"`, severity: 'high' });
+          safetyScore -= 30;
+          break;
+        }
+      }
+
+      // Personal info detection (regex patterns)
+      const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+      const phonePattern = /(\d{3}[-.]?\d{3}[-.]?\d{4})|(\+\d{1,3}\s?\d{3}[-.]?\d{3}[-.]?\d{4})/;
+      const addressPattern = /\d+\s+[a-zA-Z]+\s+(street|st|avenue|ave|road|rd|drive|dr|lane|ln|boulevard|blvd)/i;
+
+      if (emailPattern.test(text)) {
+        alerts.push({ type: 'pii', reason: 'Email address detected', severity: 'high' });
+        safetyScore -= 40;
+      }
+      if (phonePattern.test(text)) {
+        alerts.push({ type: 'pii', reason: 'Phone number detected', severity: 'high' });
+        safetyScore -= 40;
+      }
+      if (addressPattern.test(text)) {
+        alerts.push({ type: 'pii', reason: 'Address information detected', severity: 'critical' });
+        safetyScore -= 50;
+      }
+
+      // Inappropriate language
+      const inappropriateList = ['sex', 'naked', 'porn', 'explicit', 'violent'];
+      for (let word of inappropriateList) {
+        if (lower.includes(word)) {
+          alerts.push({ type: 'explicit', reason: `Explicit content: "${word}"`, severity: 'critical' });
+          safetyScore -= 50;
+          break;
+        }
+      }
+
+      safetyScore = Math.max(0, safetyScore);
+      
+      return { alerts, safetyScore, isSafe: safetyScore >= 70 };
+    };
+
+    // Add message to chat
+    const addMessage = (sender, text, emotion = null, alertData = null) => {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = sender === 'bot' ? '🤖' : '🧒';
+      
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      bubble.textContent = text;
+      content.appendChild(bubble);
+      
+      if (emotion && emotion.emotion !== 'calm') {
+        const emotionBadge = document.createElement('div');
+        emotionBadge.className = 'emotion-badge';
+        emotionBadge.innerHTML = `${emotion.icon} Feeling: ${emotion.emotion}`;
+        content.appendChild(emotionBadge);
+      }
+      
+      if (alertData && alertData.alerts.length > 0) {
+        const alertBadge = document.createElement('div');
+        alertBadge.className = 'alert-badge';
+        alertBadge.innerHTML = `⚠️ ${alertData.alerts[0].reason}`;
+        content.appendChild(alertBadge);
+      }
+      
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(content);
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    // Show typing indicator
+    const showTyping = () => {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message bot';
+      typingDiv.id = 'typingIndicator';
+      typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          <div class="message-bubble typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      `;
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    const hideTyping = () => {
+      const typing = document.getElementById('typingIndicator');
+      if (typing) typing.remove();
+    };
+
+    // Add alert to log
+    const addAlertToLog = (alertData, message, timestamp) => {
+      const alertCard = document.createElement('div');
+      alertCard.className = 'alert-card';
+      alertCard.innerHTML = `
+        <div class="alert-message">⚠️ "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"</div>
+        <div class="alert-reason">
+          ${alertData.alerts.map(a => `<span class="reason-badge">${a.reason}</span>`).join('')}
+        </div>
+        <div class="alert-time">${timestamp}</div>
+      `;
+      
+      if (alertList.querySelector('.no-alerts')) {
+        alertList.innerHTML = '';
+      }
+      alertList.insertBefore(alertCard, alertList.firstChild);
+      
+      // Update counters
+      alerts.push(alertData);
+      fabAlertCount.textContent = alerts.length;
+      statAlerts.textContent = alerts.length;
+      
+      // Update safety percentage
+      const totalMessages = messageCount;
+      const safeMessages = totalMessages - alerts.length;
+      const safetyPercent = totalMessages === 0 ? 100 : Math.round((safeMessages / totalMessages) * 100);
+      statSafe.textContent = safetyPercent;
+      
+      // Show toast notification
+      showToast(`⚠️ Safety Alert: ${alertData.alerts[0].reason}`);
+    };
+
+    // Show toast
+    const showToast = (message) => {
+      const existingToast = document.querySelector('.toast');
+      if (existingToast) existingToast.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `🛡️ ${message}`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    };
+
+    // Send message - calls backend /chat endpoint
+    async function sendMessage() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      
+      console.log("📤 Sending message:", text);  // Debug log
+      
+      chatInput.value = '';
+      messageCount++;
+      statMessages.textContent = messageCount;
+      
+      // Add user message to UI
+      const emotion = detectEmotion(text);
+      addMessage('user', text, emotion);
+      
+      // Show typing indicator
+      showTyping();
+      
+      try {
+        // Call backend /chat endpoint
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ message: text })
+        });
+        
+        const data = await response.json();
+        console.log("📥 Received response:", data);  // Debug log
+        
+        hideTyping();
+        
+        // Handle unsafe content
+        if (data.alert) {
+          const timestamp = new Date().toLocaleTimeString();
+          
+          // Safely extract details (could be array, string, or undefined)
+          let reasonText = 'Unsafe content detected';
+          if (data.details) {
+            if (Array.isArray(data.details)) {
+              reasonText = data.details.join(', ');
+            } else if (typeof data.details === 'string') {
+              reasonText = data.details;
+            } else if (data.details.reason) {
+              reasonText = data.details.reason;
+            }
+          }
+          
+          const safetyResult = {
+            alerts: [{ reason: reasonText }],
+            safetyScore: 30,
+            isSafe: false
+          };
+          addAlertToLog(safetyResult, text, timestamp);
+          addMessage('bot', data.reply, null, safetyResult);
+        } else {
+          // Safe message - show bot response
+          addMessage('bot', data.reply, { icon: '🤖', emotion: 'calm' });
+        }
+        
+      } catch (error) {
+        console.error("❌ Chat error:", error);  // Debug log
+        hideTyping();
+        addMessage('bot', "Sorry, I encountered an error. Please try again.");
+      }
+    }
+
+    // Enter key
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Alert log functions
+    function openAlertLog() {
+      alertLogPanel.classList.add('open');
+    }
+    
+    function closeAlertLog() {
+      alertLogPanel.classList.remove('open');
+    }
+    
+    // Clear chat
+    function clearChat() {
+      chatMessages.innerHTML = `
+        <div class="message bot">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <div class="message-bubble">Chat cleared! I'm still here for you. 💙</div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Simulate test alert
+    function simulateTestAlert() {
+      const testMsg = "This is a test alert for demonstration purposes";
+      const testAlert = {
+        alerts: [{ type: 'test', reason: 'Test safety alert triggered', severity: 'medium' }],
+        safetyScore: 50,
+        isSafe: false
+      };
+      const timestamp = new Date().toLocaleTimeString();
+      addAlertToLog(testAlert, testMsg, timestamp);
+      showToast("🧪 Test alert - System working correctly");
+    }
+    
+    // Video upload handler - Lightweight keyword-based analysis
+    async function handleVideoUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      console.log("🎬 Video selected:", file.name);  // Debug log
+      
+      // TASK 2: Frontend video validation - Check file size (50MB limit for frontend warning)
+      if (file.size > 50 * 1024 * 1024) {
+          alert("⚠️ File too large! Upload under 50MB. Server limit is 100MB.");
+          input.value = ''; // Clear the input
+          return;
+      }
+      
+      if (file.size > 90 * 1024 * 1024) {
+          if (!confirm("⚠️ File is very large (>90MB). Server limit is 100MB. Continue anyway?")) {
+              input.value = '';
+              return;
+          }
+      }
+
+      const videoWrapper = document.getElementById('videoWrapper');
+      const videoStatus = document.getElementById('videoStatus');
+      const videoResult = document.getElementById('videoResult');
+      const videoRiskLevel = document.getElementById('videoRiskLevel');
+      const videoMessage = document.getElementById('videoMessage');
+      const videoDetails = document.getElementById('videoDetails');
+
+      // Show video player
+      const videoURL = URL.createObjectURL(file);
+      videoWrapper.innerHTML = `
+        <video id="uploadedVideo" controls style="width:100%;height:100%;object-fit:cover;">
+          <source src="${videoURL}" type="${file.type}">
+        </video>
+        <div class="analysis-badge">
+          <span>🎥</span>
+          <span id="videoStatus">Processing...</span>
+        </div>
+      `;
+
+      // Update status
+      videoStatus.innerHTML = '⏳ Analyzing...';
+      videoResult.style.display = 'none';
+
+      try {
+        // Upload to server for analysis
+        const formData = new FormData();
+        formData.append('file', file);
+
+        console.log("📤 Uploading video to /analyze-video");  // Debug log
+        const response = await fetch('/analyze-video', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+        console.log("📥 Video analysis result:", result);  // TASK 5: Debug log
+
+        if (response.ok) {
+          // TASK 3: Display risk level with proper fallbacks
+          if (result.risk_level === 'HIGH' || result.overall_risk === 'HIGH') {
+            videoRiskLevel.innerHTML = '<span style="color: #EF4444;">🚨 HIGH RISK DETECTED</span>';
+            videoMessage.textContent = result.message || 'Unsafe content detected';
+            
+            // Collect toxic words from multiple possible fields
+            let toxicWords = [];
+            if (result.detected_keywords && Array.isArray(result.detected_keywords)) {
+              toxicWords = result.detected_keywords;
+            } else if (result.toxic_words && Array.isArray(result.toxic_words)) {
+              toxicWords = result.toxic_words;
+            } else if (result.transcript_alerts && Array.isArray(result.transcript_alerts)) {
+              toxicWords = result.transcript_alerts.map(f => f.reason || f.category || '');
+            }
+            
+            if (toxicWords.length > 0) {
+              // Safely join toxic words
+              const wordsText = Array.isArray(toxicWords) ? toxicWords.filter(w => w).join(', ') : '';
+              if (wordsText) {
+                videoDetails.innerHTML += `<div style="margin-top:10px;"><strong>📝 Toxic words found:</strong> ${wordsText}</div>`;
+                
+                // Log to alerts
+                const timestamp = new Date().toLocaleTimeString();
+                const videoAlert = {
+                  alerts: [{ type: 'video', reason: `Unsafe keywords: ${wordsText}`, severity: 'high' }],
+                  safetyScore: 20,
+                  isSafe: false
+                };
+                addAlertToLog(videoAlert, `[Video] Unsafe content: ${file.name}`, timestamp);
+              }
+            }
+            
+            // Display transcription if available
+            if (result.transcription && result.transcription !== "No audio detected in video") {
+              const transcriptDiv = document.createElement('div');
+              transcriptDiv.style.marginTop = '10px';
+              transcriptDiv.style.padding = '10px';
+              transcriptDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+              transcriptDiv.style.borderLeft = '3px solid #EF4444';
+              transcriptDiv.innerHTML = `<strong>📝 Transcription:</strong><br>${result.transcription}`;
+              videoDetails.appendChild(transcriptDiv);
+            }
+          } else {
+            videoRiskLevel.innerHTML = '<span style="color: #10B981;">✅ SAFE CONTENT</span>';
+            videoMessage.textContent = result.message || 'No unsafe content detected';
+            
+            // Display frame count
+            const framesCount = result.frames_analyzed || result.total_frames || 0;
+            videoDetails.innerHTML = framesCount ? `<strong>Frames analyzed:</strong> ${framesCount}` : '';
+            
+            // Display transcription if available
+            if (result.transcription && result.transcription !== "No audio detected in video" && result.transcription !== "Transcription failed") {
+              const transcriptDiv = document.createElement('div');
+              transcriptDiv.style.marginTop = '10px';
+              transcriptDiv.style.padding = '10px';
+              transcriptDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+              transcriptDiv.style.borderLeft = '3px solid #10B981';
+              transcriptDiv.innerHTML = `<strong>📝 Transcription:</strong><br>${result.transcription}`;
+              videoDetails.appendChild(transcriptDiv);
+            }
+          }
+          
+          videoResult.style.display = 'block';
+          videoStatus.innerHTML = '✅ Analysis complete';
+        } else {
+          // Handle error
+          videoStatus.innerHTML = '❌ Error: ' + (result.error || 'Analysis failed');
+          videoResult.style.display = 'block';
+          videoRiskLevel.textContent = 'Analysis Failed';
+          videoMessage.textContent = result.error || 'An error occurred during processing.';
+          videoDetails.innerHTML = '';
+        }
+      } catch (error) {
+        console.error("❌ Video upload error:", error);  // Debug log
+        
+        // More detailed error message
+        let errorMsg = 'Failed to connect to server.';
+        
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          errorMsg = 'Cannot reach server. Please ensure:<br><br>' +
+                     '1. Flask app is running (python app.py)<br>' +
+                     '2. You\'re on http://localhost:5000<br>' +
+                     '3. Check browser console for details';
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        
+        videoStatus.innerHTML = '❌ ' + errorMsg;
+        videoResult.style.display = 'block';
+        videoRiskLevel.textContent = 'Connection Error';
+        videoMessage.textContent = 'The backend server could not be reached. Please check if Flask is running.';
+        videoDetails.innerHTML = '';
+        
+        // Auto-check server status
+        setTimeout(() => {
+          checkServerStatus();
+        }, 2000);
+      }
+    }
+
+    // Server status checker
+    async function checkServerStatus() {
+      try {
+        const response = await fetch('/api/statistics');
+        if (response.ok) {
+          console.log('✅ Server is online');
+          return true;
+        }
+      } catch (error) {
+        console.error('❌ Server is offline or unreachable');
+        return false;
+      }
+    }
+
+    // Audio upload handler
+    async function handleAudioUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      console.log("🎤 Audio selected:", file.name);  // Debug log
+      
+      // Check audio file size (10MB limit for frontend warning)
+      if (file.size > 10 * 1024 * 1024) {
+          alert("⚠️ Audio file too large! Upload under 10MB.");
+          input.value = '';
+          return;
+      }
+
+      const audioWrapper = document.getElementById('audioWrapper');
+      const audioStatus = document.getElementById('audioStatus');
+      const audioResult = document.getElementById('audioResult');
+      const audioTranscription = document.getElementById('audioTranscription');
+      const audioSafetyResult = document.getElementById('audioSafetyResult');
+
+      // Show audio player
+      const audioURL = URL.createObjectURL(file);
+      audioWrapper.innerHTML = `
+        <audio id="uploadedAudio" controls style="width:100%;">
+          <source src="${audioURL}" type="${file.type}">
+        </audio>
+        <div class="analysis-badge">
+          <span>🎙️</span>
+          <span id="audioStatus">Processing...</span>
+        </div>
+      `;
+
+      // Update status
+      audioStatus.innerHTML = '⏳ Transcribing...';
+      audioResult.style.display = 'none';
+
+      try {
+        // Upload to server for transcription and analysis
+        const formData = new FormData();
+        formData.append('file', file);
+
+        console.log("📤 Uploading audio to /analyze-audio");  // Debug log
+        const response = await fetch('/analyze-audio', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+        console.log("📥 Audio analysis result:", result);  // Debug log
+
+        if (response.ok) {
+          // Display transcription
+          audioTranscription.textContent = result.transcription || '[No speech detected]';
+          
+          // Display safety result
+          if (result.is_safe) {
+            audioSafetyResult.innerHTML = '<span style="color: #10B981;">✅ SAFE</span> • Risk Level: LOW';
+          } else {
+            audioSafetyResult.innerHTML = '<span style="color: #EF4444;">⚠️ UNSAFE</span> • Risk Level: ' + result.risk_level;
+            
+            // Add flags if present
+            if (result.flags && result.flags.length > 0) {
+              const flagDetails = result.flags.map(f => f.reason).join(', ');
+              audioSafetyResult.innerHTML += `<br><span style="font-size: 11px; color: #FCA5A5;">Flags: ${flagDetails}</span>`;
+              
+              // Log to alerts
+              const timestamp = new Date().toLocaleTimeString();
+              const audioAlert = {
+                alerts: result.flags.map(f => ({ type: 'audio', reason: f.reason, severity: f.confidence > 0.9 ? 'high' : 'medium' })),
+                safetyScore: result.is_safe ? 100 : 30,
+                isSafe: result.is_safe
+              };
+              addAlertToLog(audioAlert, `[Audio] ${result.transcription.substring(0, 50)}...`, timestamp);
+            }
+          }
+          
+          audioResult.style.display = 'block';
+          audioStatus.innerHTML = '✅ Analysis complete';
+        } else {
+          // Handle error
+          audioStatus.innerHTML = '❌ Error: ' + (result.error || 'Analysis failed');
+          audioResult.style.display = 'block';
+          audioTranscription.textContent = 'Error occurred during processing.';
+          audioSafetyResult.innerHTML = '';
+        }
+      } catch (error) {
+        console.error("❌ Audio upload error:", error);  // Debug log
+        audioStatus.innerHTML = '❌ Connection error';
+        audioResult.style.display = 'block';
+        audioTranscription.textContent = 'Failed to connect to server. Please try again.';
+        audioSafetyResult.innerHTML = '';
+      }
+    }
+    
+    //

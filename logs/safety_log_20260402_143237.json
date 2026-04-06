@@ -1,0 +1,27 @@
+{
+  "session_id": "20260402_143237",
+  "start_time": "2026-04-02T14:32:37.501613",
+  "alerts": [
+    {
+      "timestamp": "2026-04-02T14:34:31.636509",
+      "session_id": "20260402_143237",
+      "alert_type": "CHAT",
+      "severity": "MEDIUM",
+      "category": "PROFANITY",
+      "message": "User web_user: you are stupid",
+      "confidence": 0.95,
+      "details": {
+        "user_id": "web_user",
+        "matched_text": "stupid",
+        "reason": "Profanity detected"
+      }
+    }
+  ],
+  "statistics": {
+    "total_messages": 0,
+    "total_videos": 0,
+    "total_alerts": 1,
+    "chat_alerts": 1,
+    "video_alerts": 0
+  }
+}

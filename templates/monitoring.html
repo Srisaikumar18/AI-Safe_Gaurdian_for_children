@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyWings - Real-Time Monitoring Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .alert-safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-unsafe {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .event-log {
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .event-item {
+            padding: 8px;
+            border-left: 3px solid #667eea;
+            background: #f9fafb;
+            margin-bottom: 8px;
+        }
+
+        .event-item.unsafe {
+            border-left-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 0.5s;
+        }
+
+        .console-output {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .alert-banner {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .simulation-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <span class="live-indicator"></span>
+                MelodyWings Real-Time Safety Monitoring
+            </h1>
+            <p style="color: #666; margin-top: 5px;">Live chat and video analysis pipeline</p>
+        </header>
+
+        <!-- Session Control -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>🎬 Session Control</h2>
+            <div id="sessionInfo" style="display: none;">
+                <p><strong>Session ID:</strong> <span id="sessionId"></span></p>
+                <p><strong>Started:</strong> <span id="sessionStart"></span></p>
+                <p><strong>Duration:</strong> <span id="sessionDuration"></span></p>
+            </div>
+            <div class="simulation-controls">
+                <button class="btn btn-primary" onclick="startSession()">▶️ Start Session</button>
+                <button class="btn btn-danger" onclick="endSession()" id="endBtn" disabled>⏹️ End Session</button>
+                <button class="btn btn-success" onclick="refreshStats()" id="refreshBtn" disabled>🔄 Refresh Stats</button>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="dashboard-grid">
+            <div class="card stat-card">
+                <h2>Total Events</h2>
+                <div class="stat-value" id="totalEvents">0</div>
+                <div class="stat-label">Chat + Video + Audio</div>
+            </div>
+
+            <div class="card stat-card">
+                <h2>Chat Messages</h2>
+                <div class="stat-value" id="chatMessages">0</div>
+                <div class="stat-label">Analyzed</div>
+            </div>
+
+            <div class="card stat-card">
+                <h2>Video Analyses</h2>
+                <div class="stat-value" id="videoAnalyses">0</div>
+                <div class="stat-label">Processed</div>
+            </div>
+
+            <div class="card stat-card">
+                <h2>Unsafe Content</h2>
+                <div class="stat-value" id="unsafeCount" style="color: #ef4444;">0</div>
+                <div class="stat-label">Detected</div>
+            </div>
+
+            <div class="card stat-card">
+                <h2>Safety Rate</h2>
+                <div class="stat-value" id="safetyRate" style="color: #10b981;">100%</div>
+                <div class="stat-label">Safe Content</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="safetyProgress" style="width: 100%;"></div>
+                </div>
+            </div>
+
+            <div class="card stat-card">
+                <h2>Status</h2>
+                <div class="stat-value" id="connectionStatus" style="font-size: 18px;">Disconnected</div>
+                <div class="stat-label">Server Connection</div>
+            </div>
+        </div>
+
+        <!-- Live Alerts -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>🚨 Live Alerts</h2>
+            <div id="liveAlerts">
+                <p style="color: #999; text-align: center; padding: 20px;">No alerts yet...</p>
+            </div>
+        </div>
+
+        <!-- Event Log -->
+        <div class="card">
+            <h2>📋 Event Log</h2>
+            <div class="event-log" id="eventLog">
+                <p style="color: #999; text-align: center; padding: 20px;">No events logged...</p>
+            </div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="card" style="margin-top: 20px;">
+            <h2>🧪 Simulate Content</h2>
+            
+            <div class="input-group">
+                <label>Simulate Chat Message:</label>
+                <textarea id="chatInput" rows="2" placeholder="Enter chat message to analyze..."></textarea>
+                <div class="simulation-controls">
+                    <button class="btn btn-primary" onclick="simulateChat()">Send Chat</button>
+                    <button class="btn btn-danger" onclick="simulateToxicChat()">Send Toxic Chat</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Quick Tests:</label>
+                <div class="simulation-controls">
+                    <button class="btn btn-success" onclick="simulateSafeVideo()">✅ Safe Video</button>
+                    <button class="btn btn-danger" onclick="simulateUnsafeVideo()">⚠️ Unsafe Video</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="card" style="margin-top: 20px;">
+            <h2>💻 Console Output</h2>
+            <div class="console-output" id="consoleOutput">
+                <div>Waiting for session to start...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let eventSource = null;
+
+        // Utility: Log to console div
+        function log(message, type = 'info') {
+            const consoleDiv = document.getElementById('consoleOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#10b981',
+                warning: '#f59e0b',
+                error: '#ef4444',
+                success: '#3b82f6'
+            };
+            
+            consoleDiv.innerHTML += `<div style="color: ${colors[type]};">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        // Start monitoring session
+        async function startSession() {
+            try {
+                const response = await fetch('/api/session/start', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                currentSessionId = data.session_id;
+                
+                document.getElementById('sessionId').textContent = currentSessionId;
+                document.getElementById('sessionStart').textContent = new Date().toLocaleString();
+                document.getElementById('sessionInfo').style.display = 'block';
+                document.getElementById('endBtn').disabled = false;
+                document.getElementById('refreshBtn').disabled = false;
+                
+                log(`Session started: ${currentSessionId}`, 'success');
+                updateConnectionStatus(true);
+                
+                // Start SSE stream
+                startEventStream();
+                
+                // Auto-refresh stats every 5 seconds
+                setInterval(refreshStats, 5000);
+                
+            } catch (error) {
+                log(`Failed to start session: ${error.message}`, 'error');
+                updateConnectionStatus(false);
+            }
+        }
+
+        // Start Server-Sent Events stream
+        function startEventStream() {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            eventSource = new EventSource(`/api/session/${currentSessionId}/stream`);
+            
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.events) {
+                    data.events.forEach(addEvent);
+                }
+            };
+            
+            eventSource.onerror = () => {
+                log('Event stream connection lost', 'warning');
+            };
+            
+            log('Connected to real-time event stream', 'success');
+        }
+
+        // End session
+        async function endSession() {
+            if (!currentSessionId) return;
+            
+            try {
+                const response = await fetch(`/api/session/${currentSessionId}/end`, {
+                    method: 'POST'
+                });
+                
+                const report = await response.json();
+                
+                log(`Session ended. Total events: ${report.summary.total_events}`, 'info');
+                log(`Unsafe content detected: ${report.summary.unsafe_count}`, 'warning');
+                
+                // Show final report
+                alert(`Session Report:\n\nTotal Events: ${report.summary.total_events}\nUnsafe Count: ${report.summary.unsafe_count}\nSafety Rate: ${report.summary.safety_rate}%`);
+                
+                currentSessionId = null;
+                document.getElementById('sessionInfo').style.display = 'none';
+                document.getElementById('endBtn').disabled = true;
+                document.getElementById('refreshBtn').disabled = true;
+                
+                if (eventSource) {
+                    eventSource.close();
+                }
+                
+                updateConnectionStatus(false);
+                
+            } catch (error) {
+                log(`Failed to end session: ${error.message}`, 'error');
+            }
+        }
+
+        // Refresh statistics
+        async function refreshStats() {
+            if (!currentSessionId) return;
+            
+            try {
+                const response = await fetch(`/api/session/${currentSessionId}/stats`);
+                const stats = await response.json();
+                
+                updateStatistics(stats);
+                log('Statistics refreshed', 'success');
+                
+            } catch (error) {
+                log(`Failed to refresh stats: ${error.message}`, 'error');
+            }
+        }
+
+        // Update statistics display
+        function updateStatistics(stats) {
+            document.getElementById('totalEvents').textContent = stats.total_events;
+            document.getElementById('chatMessages').textContent = stats.chat_messages;
+            document.getElementById('videoAnalyses').textContent = stats.video_analyses;
+            document.getElementById('unsafeCount').textContent = stats.unsafe_count;
+            document.getElementById('safetyRate').textContent = `${stats.safety_rate}%`;
+            document.getElementById('safetyProgress').style.width = `${stats.safety_rate}%`;
+            document.getElementById('sessionDuration').textContent = 
+                `${Math.round(stats.duration_minutes)} minutes`;
+            
+            // Update recent alerts
+            if (stats.recent_alerts && stats.recent_alerts.length > 0) {
+                updateAlerts(stats.recent_alerts);
+            }
+        }
+
+        // Add event to log
+        function addEvent(event) {
+            const logDiv = document.getElementById('eventLog');
+            
+            if (logDiv.querySelector('[style*="text-align: center"]')) {
+                logDiv.innerHTML = '';
+            }
+            
+            const eventDiv = document.createElement('div');
+            eventDiv.className = `event-item ${event.is_safe ? '' : 'unsafe'}`;
+            
+            const time = new Date(event.timestamp).toLocaleTimeString();
+            const icon = event.is_safe ? '✅' : '🚨';
+            const type = event.type.replace('_', ' ').toUpperCase();
+            
+            eventDiv.innerHTML = `
+                <div class="timestamp">${time}</div>
+                <div>${icon} ${type} - ${event.content_type.toUpperCase()}</div>
+                <div style="font-size: 11px; margin-top: 4px;">
+                    Status: ${event.is_safe ? '<span class="alert-badge alert-safe">SAFE</span>' : '<span class="alert-badge alert-unsafe">UNSAFE</span>'}
+                </div>
+            `;
+            
+            logDiv.insertBefore(eventDiv, logDiv.firstChild);
+            
+            if (event.alert_triggered) {
+                showLiveAlert(event);
+            }
+        }
+
+        // Show live alert banner
+        function showLiveAlert(event) {
+            const alertsDiv = document.getElementById('liveAlerts');
+            
+            if (alertsDiv.querySelector('[style*="text-align: center"]')) {
+                alertsDiv.innerHTML = '';
+            }
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert-banner';
+            
+            const time = new Date(event.timestamp).toLocaleTimeString();
+            const reason = event.details?.reason || 'Unsafe content detected';
+            
+            alertDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>🚨 ${time}</strong> - ${reason}
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">×</button>
+                </div>
+            `;
+            
+            alertsDiv.insertBefore(alertDiv, alertsDiv.firstChild);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 10000);
+        }
+
+        // Update alerts list
+        function updateAlerts(alerts) {
+            const alertsDiv = document.getElementById('liveAlerts');
+            
+            if (alerts.length === 0) {
+                alertsDiv.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No alerts yet...</p>';
+                return;
+            }
+            
+            alertsDiv.innerHTML = '';
+            alerts.forEach(alert => showLiveAlert(alert));
+        }
+
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            status.textContent = connected ? 'Connected ✅' : 'Disconnected ❌';
+            status.style.color = connected ? '#10b981' : '#ef4444';
+        }
+
+        // Simulate safe chat
+        async function simulateChat() {
+            const message = document.getElementById('chatInput').value.trim();
+            if (!message) {
+                alert('Please enter a message');
+                return;
+            }
+            
+            await sendChat(message, 'user123');
+            document.getElementById('chatInput').value = '';
+        }
+
+        // Simulate toxic chat
+        async function simulateToxicChat() {
+            const toxicMessages = [
+                "You're so stupid",
+                "I hate you all",
+                "This is garbage",
+                "Shut up idiot"
+            ];
+            
+            const randomMessage = toxicMessages[Math.floor(Math.random() * toxicMessages.length)];
+            await sendChat(randomMessage, 'toxic_user');
+        }
+
+        // Send chat message
+        async function sendChat(message, userId) {
+            if (!currentSessionId) {
+                alert('Please start a session first');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        user_id: userId,
+                        session_id: currentSessionId
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.is_safe) {
+                    log(`Chat message analyzed: SAFE`, 'success');
+                } else {
+                    log(`Chat message flagged: UNSAFE - ${result.toxic_words_detected?.join(', ')}`, 'warning');
+                }
+                
+            } catch (error) {
+                log(`Chat analysis failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Simulate video analysis
+        async function simulateVideo(isSafe) {
+            if (!currentSessionId) {
+                alert('Please start a session first');
+                return;
+            }
+            
+            log(`Simulating ${isSafe ? 'safe' : 'unsafe'} video upload...`, 'info');
+            
+            // Create a mock event
+            const mockEvent = {
+                timestamp: new Date().toISOString(),
+                type: 'video_analysis',
+                content_type: 'video',
+                is_safe: isSafe,
+                details: {
+                    reason: isSafe ? 'Content appears safe' : 'Unsafe visual content detected',
+                    frames_analyzed: 30,
+                    unsafe_frames: isSafe ? 0 : 5
+                },
+                alert_triggered: !isSafe
+            };
+            
+            // Add to session
+            await fetch(`/api/session/${currentSessionId}/log-event`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(mockEvent)
+            });
+            
+            addEvent(mockEvent);
+            
+            if (!isSafe) {
+                showLiveAlert(mockEvent);
+            }
+            
+            log(`Video simulation complete: ${isSafe ? 'SAFE' : 'UNSAFE'}`, isSafe ? 'success' : 'warning');
+        }
+
+        function simulateSafeVideo() {
+            simulateVideo(true);
+        }
+
+        function simulateUnsafeVideo() {
+            simulateVideo(false);
+        }
+
+        // Initialize
+        log('Dashboard ready. Click "Start Session" to begin.', 'info');
+    </script>
+</body>
+</html>

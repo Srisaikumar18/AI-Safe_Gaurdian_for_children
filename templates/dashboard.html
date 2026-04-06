@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyWings Safety Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 24px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .message.bot {
+            background: #f5f5f5;
+            border-left: 4px solid #9e9e9e;
+        }
+
+        .message.alert {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .upload-area {
+            border: 3px dashed #e0e0e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+
+        .alert-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #f44336;
+            background: #ffebee;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .badge-critical {
+            background: #f44336;
+            color: white;
+        }
+
+        .badge-high {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-medium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .badge-low {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-safe {
+            background: #4caf50;
+        }
+
+        .status-unsafe {
+            background: #f44336;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .flag-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🛡️ MelodyWings Safety Dashboard</h1>
+            <p>Real-time safety monitoring for neurodivergent children and special needs support</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="dashboard-grid">
+            <!-- Chat Analysis Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">💬 Chat Monitoring</h2>
+                    <span class="status-indicator status-safe" id="chatStatus"></span>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <strong>System:</strong> Welcome! Type a message to analyze for safety concerns.
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🚨 Safety Alerts</h2>
+                    <button class="btn btn-primary" onclick="refreshAlerts()">Refresh</button>
+                </div>
+                <div class="alert-list" id="alertList">
+                    <div style="text-align: center; color: #999; padding: 40px;">
+                        No alerts yet
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Upload Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🎤 Audio Analysis</h2>
+                </div>
+                <div class="upload-area" id="audioUploadArea" onclick="document.getElementById('audioFile').click()">
+                    <p style="font-size: 48px;">🎙️</p>
+                    <p><strong>Click to upload audio file</strong></p>
+                    <p style="color: #999; font-size: 14px;">Supports .wav format</p>
+                </div>
+                <input type="file" id="audioFile" accept=".wav,audio/wav" style="display: none;" onchange="handleAudioUpload(this)">
+                <div class="result-box" id="audioResult"></div>
+            </div>
+
+            <!-- Video Upload Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🎥 Video Analysis</h2>
+                </div>
+                <div class="upload-area" id="videoUploadArea" onclick="document.getElementById('videoFile').click()">
+                    <p style="font-size: 48px;">🎬</p>
+                    <p><strong>Click to upload video file</strong></p>
+                    <p style="color: #999; font-size: 14px;">Supports .mp4, .avi, .mov, .mkv, .webm</p>
+                </div>
+                <input type="file" id="videoFile" accept="video/*" style="display: none;" onchange="handleVideoUpload(this)">
+                <div class="result-box" id="videoResult"></div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📊 Session Statistics</h2>
+                <button class="btn btn-primary" onclick="exportReport()">Export Report</button>
+            </div>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-box">
+                    <div class="stat-value" id="statMessages">0</div>
+                    <div class="stat-label">Messages Analyzed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statAlerts">0</div>
+                    <div class="stat-label">Total Alerts</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statChatAlerts">0</div>
+                    <div class="stat-label">Chat Alerts</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statVideoAlerts">0</div>
+                    <div class="stat-label">Video Alerts</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Send chat message
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage('user', message);
+            input.value = '';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        user_id: 'web_user'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // TASK 3 & 7: Enhanced display with word-level toxicity highlighting
+                const confidencePercent = Math.round(data.confidence * 100);
+                
+                if (data.status === "safe") {
+                    // Safe message - show confidence and reason
+                    let safeMsg = `✅ <strong>SAFE</strong> (${confidencePercent}% confidence)<br>`;
+                    safeMsg += `<small>Reason: ${escapeHtml(data.reason)}</small>`;
+                    
+                    // Highlight words with toxicity mapping if available
+                    if (data.words_with_toxicity && data.words_with_toxicity.length > 0) {
+                        safeMsg += `<div style="margin-top: 8px; padding: 8px; background: #e8f5e9; border-radius: 4px;">`;
+                        safeMsg += `<strong>Analyzed text:</strong><br>`;
+                        data.words_with_toxicity.forEach((item, idx) => {
+                            if (item.is_toxic) {
+                                safeMsg += `<span style="background: #ffcdd2; color: #c62828; padding: 2px 4px; border-radius: 2px; margin: 0 2px;" title="Potentially toxic">${escapeHtml(item.word)}</span>`;
+                            } else {
+                                safeMsg += `<span>${escapeHtml(item.word)}</span>`;
+                            }
+                            if (idx < data.words_with_toxicity.length - 1) safeMsg += ` `;
+                        });
+                        safeMsg += `</div>`;
+                    }
+                    
+                    if (data.toxic_words_detected && data.toxic_words_detected.length > 0) {
+                        safeMsg += `<br><small style="color: #999;">Note: ${data.toxic_words_detected.length} terms checked but context is OK</small>`;
+                    }
+                    addMessage('bot', safeMsg);
+                } else {
+                    // Unsafe - show comprehensive analysis with confidence and word highlighting
+                    let alertMsg = `<div style="background: #ffebee; padding: 10px; border-left: 4px solid #f44336; border-radius: 4px;">`;
+                    alertMsg += `⚠️ <strong>UNSAFE</strong> (${confidencePercent}% confidence)<br>`;
+                    alertMsg += `<small><strong>Reason:</strong> ${escapeHtml(data.reason)}</small><br><br>`;
+                    
+                    // Highlight toxic words in the original message if word-level data available
+                    if (data.words_with_toxicity && data.words_with_toxicity.length > 0) {
+                        alertMsg += `<div style="margin-bottom: 10px; padding: 10px; background: #fff; border-radius: 4px;">`;
+                        alertMsg += `<strong>📝 Your message:</strong><br>`;
+                        data.words_with_toxicity.forEach((item, idx) => {
+                            if (item.is_toxic) {
+                                alertMsg += `<span style="background: #ffcdd2; color: #c62828; padding: 2px 6px; border-radius: 3px; margin: 0 2px; font-weight: bold;" title="Toxic word">⚠️ ${escapeHtml(item.word)}</span>`;
+                            } else {
+                                alertMsg += `<span>${escapeHtml(item.word)}</span>`;
+                            }
+                            if (idx < data.words_with_toxicity.length - 1) alertMsg += ` `;
+                        });
+                        alertMsg += `</div>`;
+                    }
+                    
+                    // Show toxic words list
+                    if (data.toxic_words_detected && data.toxic_words_detected.length > 0) {
+                        alertMsg += `<div style="background: #fff3cd; padding: 8px; border-radius: 4px; margin: 8px 0;">`;
+                        alertMsg += `<strong>⚠️ Toxic words detected:</strong> <span style="color: #c62828;">${data.toxic_words_detected.join(', ')}</span>`;
+                        alertMsg += `</div>`;
+                    }
+                    
+                    // Show ML prediction if available
+                    if (data.ml_prediction && data.ml_confidence) {
+                        const mlConfidence = Math.round(data.ml_confidence * 100);
+                        alertMsg += `<strong>🤖 ML Analysis:</strong> ${data.ml_prediction.toUpperCase()} (${mlConfidence}% confidence)<br>`;
+                    }
+                    
+                    // Show rule-based flags
+                    if (data.rule_based_flags && data.rule_based_flags.length > 0) {
+                        alertMsg += `<strong>📋 Rule violations:</strong><br>`;
+                        data.rule_based_flags.forEach(flag => {
+                            alertMsg += `&nbsp;&nbsp;• [${flag.category}] ${flag.reason}<br>`;
+                        });
+                    }
+                    
+                    alertMsg += `</div>`;
+                    addMessage('alert', alertMsg);
+                }
+                
+                // Refresh statistics
+                refreshStatistics();
+                
+            } catch (error) {
+                addMessage('alert', '❌ Error: ' + error.message);
+            }
+        }
+        
+        // Add message to chat
+        function addMessage(type, text) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // Handle audio upload
+        async function handleAudioUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const resultDiv = document.getElementById('audioResult');
+            resultDiv.className = 'result-box show';
+            resultDiv.innerHTML = '<div class="loading"></div> Analyzing audio...';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/analyze-audio', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>🎤 Audio Analysis Result</h3>';
+                
+                // TASK 4 UI DISPLAY: Show transcription + detailed analysis
+                if (data.transcription) {
+                    html += `<div style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin: 10px 0;">`;
+                    html += `<p><strong>📝 Transcription:</strong></p>`;
+                    html += `<p style="font-style: italic;">"${data.transcription}"</p>`;
+                    html += `</div>`;
+                }
+                
+                // Show comprehensive analysis results
+                if (data.analysis) {
+                    html += `<div style="margin: 15px 0;">`;
+                    
+                    // Toxic words detected
+                    if (data.toxic_words_detected && data.toxic_words_detected.length > 0) {
+                        html += `<p><strong>🚨 Detected words:</strong> ${data.toxic_words_detected.join(', ')}</p>`;
+                    }
+                    
+                    // Final decision with clear status
+                    const statusColor = data.final_decision === 'safe' ? 'green' : 'red';
+                    const statusIcon = data.final_decision === 'safe' ? '✅' : '⚠️';
+                    html += `<p style="color: ${statusColor}; font-size: 18px;"><strong>${statusIcon} Status: ${data.final_decision.toUpperCase()}</strong></p>`;
+                    
+                    // Word-level toxicity
+                    if (data.word_level_toxicity) {
+                        html += `<p>• Word-level analysis: <span style="color: red;">Toxic terms detected</span></p>`;
+                    }
+                    
+                    // Sentence-level toxicity
+                    if (data.sentence_level_toxicity || data.ml_prediction === 'toxic') {
+                        html += `<p>• Sentence-level analysis: <span style="color: orange;">AI detected concerning pattern</span></p>`;
+                    }
+                    
+                    // Rule-based flags
+                    if (data.rule_based_flags && data.rule_based_flags.length > 0) {
+                        html += `<p>• Additional concerns:</p>`;
+                        html += `<ul>`;
+                        data.rule_based_flags.forEach(flag => {
+                            html += `<li>${flag.category}: ${flag.reason}</li>`;
+                        });
+                        html += `</ul>`;
+                    }
+                    
+                    html += `</div>`;
+                } else {
+                    // Fallback for simple display
+                    if (data.is_safe) {
+                        html += '<p style="color: green;"><strong>✅ SAFE</strong> - Risk Level: LOW</p>';
+                    } else {
+                        html += '<p style="color: red;"><strong>⚠️ UNSAFE</strong> - Risk Level: ' + data.risk_level + '</p>';
+                    }
+                }
+                
+                resultDiv.innerHTML = html;
+                refreshStatistics();
+                refreshAlerts();
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+            }
+        }
+        
+        // Handle video upload
+        async function handleVideoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const resultDiv = document.getElementById('videoResult');
+            resultDiv.className = 'result-box show';
+            resultDiv.innerHTML = '<div class="loading"></div> Analyzing video... This may take a moment.';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/analyze-video', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>🎬 Video Analysis Result</h3>';
+                
+                // Overall safety
+                html += `<p><strong>Overall Safety:</strong> ${data.overall_safety || 'UNKNOWN'}</p>`;
+                
+                // Frame statistics - use correct field names
+                html += `<p><strong>Frames Analyzed:</strong> ${data.frames_total || 0}</p>`;
+                html += `<p><strong>Safe Frames:</strong> ${data.frames_safe || 0}</p>`;
+                
+                // TASK 3 & 4: Enhanced transcription display with FULL transcript and collapsible sections
+                const sessionId = data.session_id || null;
+                
+                if (data.transcription && !data.transcription.startsWith('[')) {
+                    html += `<p><strong>📝 Transcription Analysis:</strong></p>`;
+                    
+                    // Check if we have word-level toxicity data
+                    if (data.text_analysis && data.text_analysis.words_with_toxicity && data.text_analysis.words_with_toxicity.length > 0) {
+                        // Display with word-by-word highlighting
+                        html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; line-height: 2;">`;
+                        
+                        data.text_analysis.words_with_toxicity.forEach((item, index) => {
+                            if (item.is_toxic) {
+                                // Toxic word - highlight in red
+                                html += `<span style="background: #ffcdd2; color: #c62828; padding: 2px 6px; border-radius: 3px; margin: 0 2px; font-weight: bold;" title="⚠️ Toxic word">${escapeHtml(item.word)}</span>`;
+                            } else {
+                                // Normal word
+                                html += `<span style="color: #333;">${escapeHtml(item.word)}</span>`;
+                            }
+                            // Add space after each word (except last)
+                            if (index < data.text_analysis.words_with_toxicity.length - 1) {
+                                html += ` `;
+                            }
+                        });
+                        
+                        html += `</div>`;
+                        
+                        // Add legend
+                        html += `<div style="margin: 10px 0; padding: 10px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">`;
+                        html += `<strong>🔍 Analysis Details:</strong><br>`;
+                        html += `<span style="display: inline-block; background: #ffcdd2; color: #c62828; padding: 2px 8px; border-radius: 3px; margin-right: 8px;">toxic word</span>`;
+                        html += `= Highlighted toxic words<br>`;
+                        html += `<small style="color: #666;">Total words: ${data.text_analysis.words_with_toxicity.length} | `;
+                        html += `Toxic words: ${data.text_analysis.toxic_words_detected ? data.text_analysis.toxic_words_detected.length : 0}</small>`;
+                        html += `</div>`;
+                        
+                    } else {
+                        // Fallback: simple text display without highlighting
+                        html += `<div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0;">`;
+                        html += `<p style="margin: 0; line-height: 1.6; color: #333;">`;
+                        html += `${escapeHtml(data.transcription.substring(0, 500))}${data.transcription.length > 500 ? '...' : ''}`;
+                        html += `</p>`;
+                        html += `</div>`;
+                    }
+                    
+                    // Show toxic words summary if any detected
+                    if (data.text_analysis && data.text_analysis.toxic_words_detected && data.text_analysis.toxic_words_detected.length > 0) {
+                        html += `<div style="background: #ffebee; padding: 12px; border-left: 4px solid #f44336; border-radius: 4px; margin: 10px 0;">`;
+                        html += `<strong>⚠️ Toxic Words Detected:</strong> `;
+                        html += `<span style="color: #c62828;">${data.text_analysis.toxic_words_detected.join(', ')}</span>`;
+                        html += `</div>`;
+                    }
+                    
+                    // NEW: Full transcript section with segments and timestamps
+                    const totalWords = data.text_analysis.total_words || data.transcription.split(' ').length;
+                    const duration = data.text_analysis.duration_estimate || '00:00';
+                    const segments = data.text_analysis.transcript_segments || [];
+                    
+                    html += `<div class="full-transcript-section" style="margin-top: 20px;">`;
+                    html += `<h3 style="border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">📝 Complete Transcript</h3>`;
+                    
+                    // Metadata bar
+                    html += `<div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center;">`;
+                    html += `<div>`;
+                    html += `<strong>📊 Statistics:</strong> `;
+                    html += `<span style="margin-left: 15px;">📄 ${totalWords} words</span>`;
+                    html += `<span style="margin-left: 15px;">⏱️ Duration: ~${duration}</span>`;
+                    if (sessionId) {
+                        html += `<span style="margin-left: 15px;">🆔 Session: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">${sessionId}</code></span>`;
+                    }
+                    html += `</div>`;
+                    html += `</div>`;
+                    
+                    // Collapsible full transcript
+                    html += `<details style="background: #fafafa; border: 1px solid #ddd; border-radius: 6px; margin: 10px 0;">`;
+                    html += `<summary style="padding: 12px; cursor: pointer; font-weight: bold; background: #f5f5f5; border-radius: 6px;">`;
+                    html += `📖 View Full Transcript (${totalWords} words)`;
+                    html += `</summary>`;
+                    
+                    html += `<div style="padding: 15px;">`;
+                    
+                    // If segments available, show with timestamps
+                    if (segments.length > 0) {
+                        html += `<div style="font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.8;">`;
+                        segments.forEach(segment => {
+                            html += `<div style="margin-bottom: 10px; padding: 8px; background: #fff; border-left: 3px solid #2196F3;">`;
+                            html += `<span style="color: #2196F3; font-weight: bold; margin-right: 10px;">[${segment.start_time} - ${segment.end_time}]</span>`;
+                            html += `<span style="color: #333;">${escapeHtml(segment.text)}</span>`;
+                            html += `</div>`;
+                        });
+                        html += `</div>`;
+                    } else {
+                        // No segments, show full text
+                        html += `<div style="font-family: 'Georgia', serif; font-size: 15px; line-height: 1.8; color: #333; white-space: pre-wrap;">`;
+                        html += escapeHtml(data.transcription);
+                        html += `</div>`;
+                    }
+                    
+                    html += `</div>`; // End inner padding
+                    
+                    // Action buttons
+                    html += `<div style="padding: 12px; background: #f5f5f5; border-top: 1px solid #ddd; display: flex; gap: 10px;">`;
+                    html += `<button onclick="copyTranscript('${escapeHtml(data.transcription.replace(/'/g, "\\'"))}')" 
+                           style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                           📋 Copy Full Text
+                           </button>`;
+                    
+                    if (sessionId) {
+                        html += `<button onclick="downloadTranscript('${sessionId}', '${escapeHtml((data.transcription || '').substring(0, 50).replace(/'/g, "\\'"))}')" 
+                               style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                               ⬇️ Download TXT
+                               </button>`;
+                    }
+                    
+                    html += `</div>`;
+                    html += `</details>`; // End details
+                    html += `</div>`; // End full transcript section
+                    
+                } else if (data.transcription) {
+                    html += `<p style="color: #999;"><em>${data.transcription}</em></p>`;
+                }
+                
+                // Text analysis - check for toxic words
+                if (data.text_analysis && data.text_analysis.toxic_words_detected && data.text_analysis.toxic_words_detected.length > 0) {
+                    html += `<div style="background: #ffebee; padding: 10px; border-left: 4px solid #f44336; margin: 10px 0;">`;
+                    html += `<strong>⚠️ Toxic Words Detected:</strong> ${data.text_analysis.toxic_words_detected.join(', ')}<br>`;
+                    html += `<small>Status: ${data.text_analysis.is_safe ? '✅ SAFE' : '⚠️ UNSAFE'}</small>`;
+                    html += `</div>`;
+                } else if (data.text_analysis) {
+                    html += `<div style="background: #e8f5e9; padding: 10px; border-left: 4px solid #4caf50; margin: 10px 0;">`;
+                    html += `<strong>✅ Transcript Analysis:</strong> No toxic content detected<br>`;
+                    html += `<small>Status: ${data.text_analysis.is_safe ? 'SAFE' : 'UNSAFE'}</small>`;
+                    html += `</div>`;
+                }
+                
+                // Frame alerts - FIXED: Check if array and handle string format
+                if (data.frame_alerts && Array.isArray(data.frame_alerts) && data.frame_alerts.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>⚠️ Frame Alerts:</strong></div>';
+                    data.frame_alerts.forEach((alert, i) => {
+                        if (i < 5) { // Show first 5
+                            // Alert is now a simple string, not an object
+                            html += `<div class="flag-item">${escapeHtml(alert)}</div>`;
+                        }
+                    });
+                } else {
+                    html += `<p style="color: #999; margin-top: 10px;">No visual alerts detected</p>`;
+                }
+                
+                // Display error if present
+                if (data.error) {
+                    html += `<div style="background: #ffebee; padding: 15px; border-left: 4px solid #f44336; margin-top: 10px;">`;
+                    html += `<strong>❌ Error:</strong> ${escapeHtml(data.error)}`;
+                    html += `</div>`;
+                }
+                
+                resultDiv.innerHTML = html;
+                refreshStatistics();
+                refreshAlerts();
+                
+            } catch (error) {
+                console.error('Video upload error:', error);
+                resultDiv.innerHTML = '<p style="color: red;">❌ Error: ' + escapeHtml(error.message) + '</p>';
+            }
+        }
+        
+        // Helper function to escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        // TASK 5: Copy transcript to clipboard
+        function copyTranscript(text) {
+            if (!text) {
+                alert('No transcript available to copy');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show success message
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                btn.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#2196F3';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy transcript. Please select and copy manually.');
+            });
+        }
+        
+        // TASK 5: Download transcript as TXT file
+        function downloadTranscript(sessionId, previewText) {
+            if (!sessionId) {
+                alert('No session ID available for download');
+                return;
+            }
+            
+            // Fetch full transcript from API
+            fetch(`/api/transcript/${sessionId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    // Create formatted text content
+                    let content = 'MELODYWINGS SAFE AI - TRANSCRIPT\n';
+                    content += '=' .repeat(50) + '\n\n';
+                    content += `Session ID: ${sessionId}\n`;
+                    content += `Source: ${data.source}\n`;
+                    content += `Timestamp: ${data.timestamp}\n`;
+                    content += `Total Words: ${data.total_words}\n`;
+                    content += `Duration Estimate: ${data.duration_estimate}\n`;
+                    content += `Safety Status: ${data.is_safe ? 'SAFE' : 'UNSAFE'}\n`;
+                    content += `Confidence: ${(data.confidence * 100).toFixed(1)}%\n`;
+                    content += `Analysis Reason: ${data.analysis_reason}\n\n`;
+                    content += '=' .repeat(50) + '\n';
+                    content += 'FULL TRANSCRIPT\n';
+                    content += '=' .repeat(50) + '\n\n';
+                    content += data.full_text + '\n\n';
+                    
+                    // Add segments if available
+                    if (data.segments && data.segments.length > 0) {
+                        content += '\n\nSEGMENTS WITH TIMESTAMPS\n';
+                        content += '=' .repeat(50) + '\n\n';
+                        data.segments.forEach((segment, idx) => {
+                            content += `[${segment.start_time} - ${segment.end_time}] ${segment.text}\n\n`;
+                        });
+                    }
+                    
+                    // Create and trigger download
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `transcript_${sessionId}_${new Date().getTime()}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    console.log('Transcript downloaded successfully');
+                })
+                .catch(err => {
+                    console.error('Download error:', err);
+                    alert('Failed to download transcript. Please try again.');
+                });
+        }
+        
+        // Refresh alerts
+        async function refreshAlerts() {
+            try {
+                const response = await fetch('/api/alerts?limit=20');
+                const data = await response.json();
+                
+                const alertList = document.getElementById('alertList');
+                
+                // Handle both array response and object with alerts property
+                const alerts = Array.isArray(data) ? data : (data.alerts || []);
+                
+                if (alerts.length === 0) {
+                    alertList.innerHTML = '<div style="text-align: center; color: #999; padding: 40px;">No alerts yet</div>';
+                    return;
+                }
+                
+                let html = '';
+                alerts.reverse().forEach(alert => {
+                    // TASK 7: Display confidence and reason
+                    const confidencePercent = Math.round((alert.confidence || 0) * 100);
+                    const badgeClass = alert.source === 'chat' ? 'badge-high' : 'badge-critical';
+                    const statusClass = alert.status === 'UNSAFE' ? 'status-unsafe' : 'status-safe';
+                    
+                    html += `
+                        <div class="alert-item">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span class="alert-badge ${badgeClass}">${alert.source.toUpperCase()}</span>
+                                <span style="font-size: 12px; color: #666;">
+                                    🕒 ${alert.timestamp}
+                                </span>
+                            </div>
+                            
+                            <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
+                                <strong style="color: #333;">Status:</strong> 
+                                <span style="color: ${alert.status === 'UNSAFE' ? '#f44336' : '#4caf50'}; font-weight: bold;">
+                                    ${alert.status} (${confidencePercent}% confidence)
+                                </span><br>
+                                <small style="color: #666;"><strong>Reason:</strong> ${escapeHtml(alert.reason)}</small>
+                            </div>
+                            
+                            <div style="font-size: 13px; color: #555;">
+                                <strong>Content:</strong><br>
+                                <span style="background: #fff; padding: 8px; border-left: 3px solid #ddd; display: block; margin-top: 4px;">
+                                    "${escapeHtml(alert.content.substring(0, 200))}${alert.content.length > 200 ? '...' : ''}"
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                alertList.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error refreshing alerts:', error);
+            }
+        }
+        
+        // Refresh statistics
+        // TASK 2 & 3: Enhanced statistics with real-time database updates
+        async function refreshStatistics() {
+            try {
+                const response = await fetch('/api/statistics');
+                const stats = await response.json();
+                
+                // Update statistics with real database data
+                document.getElementById('statMessages').textContent = stats.messages_analyzed || 0;
+                document.getElementById('statAlerts').textContent = stats.total_alerts || 0;
+                document.getElementById('statChatAlerts').textContent = stats.chat_alerts || 0;
+                document.getElementById('statVideoAlerts').textContent = stats.video_alerts || 0;
+                
+                console.log('📊 Statistics updated:', stats);
+                
+            } catch (error) {
+                console.error('❌ Error refreshing statistics:', error);
+            }
+        }
+        
+        // Export report
+        async function exportReport() {
+            try {
+                const response = await fetch('/api/export-report', { method: 'POST' });
+                const data = await response.json();
+                alert('Report exported successfully!\nPath: ' + data.path);
+            } catch (error) {
+                alert('Error exporting report: ' + error.message);
+            }
+        }
+        
+        // TASK 6: Auto-refresh alerts every 3 seconds for real-time monitoring
+        setInterval(refreshAlerts, 3000);
+        
+        // TASK 2: Auto-refresh statistics every 3 seconds for real-time updates
+        setInterval(refreshStatistics, 3000);
+        
+        // Auto-refresh alerts every 3 seconds (already set)
+        setInterval(refreshAlerts, 3000);
+        
+        // Initial load
+        refreshStatistics();
+        refreshAlerts();
+    </script>
+</body>
+</html>

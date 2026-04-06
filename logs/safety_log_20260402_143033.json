@@ -1,0 +1,55 @@
+{
+  "session_id": "20260402_143033",
+  "start_time": "2026-04-02T14:30:33.948333",
+  "alerts": [
+    {
+      "timestamp": "2026-04-02T14:30:34.295008",
+      "session_id": "20260402_143033",
+      "alert_type": "CHAT",
+      "severity": "MEDIUM",
+      "category": "PROFANITY",
+      "message": "User web_user: you are stupid",
+      "confidence": 0.95,
+      "details": {
+        "user_id": "web_user",
+        "matched_text": "stupid",
+        "reason": "Profanity detected"
+      }
+    },
+    {
+      "timestamp": "2026-04-02T14:30:34.306455",
+      "session_id": "20260402_143033",
+      "alert_type": "CHAT",
+      "severity": "CRITICAL",
+      "category": "PERSONAL_INFO",
+      "message": "User web_user: my number is 8220146116",
+      "confidence": 0.85,
+      "details": {
+        "user_id": "web_user",
+        "matched_text": "8220146116",
+        "reason": "Phone number"
+      }
+    },
+    {
+      "timestamp": "2026-04-02T14:30:34.368027",
+      "session_id": "20260402_143033",
+      "alert_type": "CHAT",
+      "severity": "CRITICAL",
+      "category": "PERSONAL_INFO",
+      "message": "User web_user: my number is 8220146116",
+      "confidence": 0.85,
+      "details": {
+        "user_id": "web_user",
+        "matched_text": "my number is",
+        "reason": "Self-disclosed personal info"
+      }
+    }
+  ],
+  "statistics": {
+    "total_messages": 0,
+    "total_videos": 0,
+    "total_alerts": 3,
+    "chat_alerts": 3,
+    "video_alerts": 0
+  }
+}
